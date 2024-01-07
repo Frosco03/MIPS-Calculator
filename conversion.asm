@@ -13,6 +13,7 @@
 		
 		#Check if the current array value is a number
 		#Assume that $t1 = member of the array
+		li $t1, '0'
 		li  $t0, '0'
 		bltu   $t1,$t0, notdig        # Jump if char < '0'
 
@@ -37,7 +38,7 @@
 				# $s6 is OperatorStack
 				# if OperatorStack is empty, go to pushInputToOperatorStack
 				lw $s6, 0($sp)		
-				beq $s6, $zero, pushInputToOperatorStack
+				beq $s6, $zero, isAddOrSub_pushInputToOperatorStack
 				
 				# else if the OperatorStack is NOT empty
 					# pop off the top element $s7 of the OperatorStack
@@ -46,19 +47,19 @@
 					
 					# if $s7 is ( * / 
 					# if $s7 == ( then push $s7 back to OperatorStack
-					beq $s0, $s7, pushS7BackToOperatorStack
-						pushS7BackToOperatorStack:
+					beq $s0, $s7, isAddOrSub_pushS7BackToOperatorStack
+						isAddOrSub_pushS7BackToOperatorStack:
 							addi $sp, $sp, -4
 							sw $s7, 0($sp)
-							b pushInputToOperatorStack
-					beq $s4, $s7, pushInputToOperatorStack	# if $s7 == * 
-					beq $s5, $s7, pushInputToOperatorStack	# if $s7 == /
+							b isAddOrSub_pushInputToOperatorStack
+					beq $s4, $s7, isAddOrSub_pushInputToOperatorStack	# if $s7 == * 
+					beq $s5, $s7, isAddOrSub_pushInputToOperatorStack	# if $s7 == /
 					
 					# PUSH $S7 TO OutputQueue
 					
 					b isAddOrSub
 			
-				pushInputToOperatorStack:
+				isAddOrSub_pushInputToOperatorStack:
 					# push $t1 to OperatorStack
 					addi $sp, $sp, -4
 					sw $t1, 0($sp)
@@ -69,7 +70,7 @@
 				# $s6 is OPERATOR STACK 
 				# if OperatorStack is empty, go to pushInputToOperatorStack
 				lw $s6, 0($sp)		
-				beq $s6, $zero, pushInputToOperatorStack
+				beq $s6, $zero, isMulOrDiv_pushInputToOperatorStack
 				
 				# else if the OperatorStack is NOT empty
 					# pop off the top element $s7 of the OperatorStack
@@ -78,17 +79,17 @@
 					
 					# if $s7 is (
 					# if $s7 == ( then push $s7 back to OperatorStack
-					beq $s0, $s7, pushS7BackToOperatorStack
-						pushS7BackToOperatorStack:
+					beq $s0, $s7, isMulOrDiv_pushS7BackToOperatorStack
+						isMulOrDiv_pushS7BackToOperatorStack:
 							addi $sp, $sp, -4
 							sw $s7, 0($sp)
-							b pushInputToOperatorStack
+							b isMulOrDiv_pushInputToOperatorStack
 					
 					# PUSH $S7 TO OutputQueue
 					
 					b isMulOrDiv
 			
-				pushInputToOperatorStack:
+				isMulOrDiv_pushInputToOperatorStack:
 					# push $t1 to OperatorStack
 					addi $sp, $sp, -4
 					sw $t1, 0($sp)
@@ -130,4 +131,6 @@
 		end:
 
 .data
+
+.include "utils.asm"
 	
