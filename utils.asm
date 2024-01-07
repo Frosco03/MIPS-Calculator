@@ -76,6 +76,21 @@
 		jr $ra
 
 .text
+	PromptString:
+		# Print the prompt, which is already in $a0
+		li $v0, 4
+		syscall
+		# Read the String value. Note that at the end of the
+		# syscall the value is already in $v0, so there is no
+		# need to move it anywhere.
+		move $a0, $a1
+		li $a1, 100
+		li $v0, 8
+		syscall
+		#return
+		jr $ra
+
+.text
 	Exit:
 		li $v0, 10
 		syscall
