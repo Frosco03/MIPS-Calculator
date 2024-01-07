@@ -13,7 +13,6 @@
 		
 		#Check if the current array value is a number
 		#Assume that $t1 = member of the array
-		li $t1, '0'
 		li  $t0, '0'
 		bltu   $t1,$t0, notdig        # Jump if char < '0'
 
@@ -34,103 +33,133 @@
 			beq $s0, $t1, isOpenParen	# if $t1 == (
 			beq $s1, $t1, isCloseParen	# if $t1 == )
 			
-			isAddOrSub:
-				# $s6 is OperatorStack
+			isAddOrSub:	
 				# if OperatorStack is empty, go to pushInputToOperatorStack
-				lw $s6, 0($sp)		
-				beq $s6, $zero, isAddOrSub_pushInputToOperatorStack
+				lw $s6, OperatorStack_TopIndex
+				beq $s6, $zero, pushInputToOperatorStack
 				
-				# else if the OperatorStack is NOT empty
-					# pop off the top element $s7 of the OperatorStack
-					lw $s7, 0($sp)	
-					addi $sp, $sp, 4
+				# else if the OperatorStack is NOT empty, execute the following:
+				
+				# pop off the top element $s7 of the OperatorStack
+				lw $t7, OperatorStack_TopIndex	# load current OperatorStack_TopIndex
+				lw $s7, OperatorStack($t7)	# save OperatorStack top element to $s7, then pop it off
+				addi $t7, $t7, -4
+				sw $t7, OperatorStack_TopIndex	# update OperatorStack_TopIndex
 					
-					# if $s7 is ( * / 
-					# if $s7 == ( then push $s7 back to OperatorStack
-					beq $s0, $s7, isAddOrSub_pushS7BackToOperatorStack
-						isAddOrSub_pushS7BackToOperatorStack:
-							addi $sp, $sp, -4
-							sw $s7, 0($sp)
-							b isAddOrSub_pushInputToOperatorStack
-					beq $s4, $s7, isAddOrSub_pushInputToOperatorStack	# if $s7 == * 
-					beq $s5, $s7, isAddOrSub_pushInputToOperatorStack	# if $s7 == /
+					# check if $s7 is ( * / 
+					# if $s7 == (
+					beq $s0, $s7, pushPoppedElementBackToOperatorStack # then pushInputToOperatorStack
+					# else if $s7 == *  /
+					beq $s4, $s7, pushInputToOperatorStack	
+					beq $s5, $s7, pushInputToOperatorStack
 					
-					# PUSH $S7 TO OutputQueue
+					##### PUSH $S7 TO OutputQueue
+					##### ADD CODE HERE
 					
 					b isAddOrSub
+				
+				pushPoppedElementBackToOperatorStack:
+					# push $s7 back to OperatorStack
+					lw $t7, OperatorStack_TopIndex	# load current OperatorStack_TopIndex
+					addi $t7, $t7, 4		
+					sw $s7, OperatorStack($t7)
+					sw $t7, OperatorStack_TopIndex	# update OperatorStack_TopIndex
 			
-				isAddOrSub_pushInputToOperatorStack:
+				pushInputToOperatorStack:
 					# push $t1 to OperatorStack
-					addi $sp, $sp, -4
-					sw $t1, 0($sp)
+					lw $t7, OperatorStack_TopIndex	# load current OperatorStack_TopIndex
+					addi $t7, $t7, 4
+					sw $t1, OperatorStack($t7)
+					sw $t7, OperatorStack_TopIndex	# update OperatorStack_TopIndex
 					
-					b InPostConversion	# move to the next element of the array
+					##### b InPostConversion	# move to the next element of the array
+					b end ##### TEMPORARY; REMOVE THIS LINE
 			
 			isMulOrDiv:
-				# $s6 is OPERATOR STACK 
 				# if OperatorStack is empty, go to pushInputToOperatorStack
-				lw $s6, 0($sp)		
-				beq $s6, $zero, isMulOrDiv_pushInputToOperatorStack
+				lw $s6, OperatorStack_TopIndex			
+				beq $s6, $zero, pushInputToOperatorStack_duplicate
 				
-				# else if the OperatorStack is NOT empty
-					# pop off the top element $s7 of the OperatorStack
-					lw $s7, 0($sp)	
-					addi $sp, $sp, 4
+				# else if the OperatorStack is NOT empty, execute the following:
+				
+				# pop off the top element $s7 of the OperatorStack
+				lw $t7, OperatorStack_TopIndex	# load current OperatorStack_TopIndex
+				lw $s7, OperatorStack($t7)	# save OperatorStack top element to $s7, then pop it off
+				addi $t7, $t7, -4
+				sw $t7, OperatorStack_TopIndex	# update OperatorStack_TopIndex
 					
-					# if $s7 is (
-					# if $s7 == ( then push $s7 back to OperatorStack
-					beq $s0, $s7, isMulOrDiv_pushS7BackToOperatorStack
-						isMulOrDiv_pushS7BackToOperatorStack:
-							addi $sp, $sp, -4
-							sw $s7, 0($sp)
-							b isMulOrDiv_pushInputToOperatorStack
+					# check if $s7 is (
+					# if $s7 == ( 
+					beq $s0, $s7, pushPoppedElementBackToOperatorStack_duplicate # then pushInputToOperatorStack_duplicate
 					
-					# PUSH $S7 TO OutputQueue
+					##### PUSH $S7 TO OutputQueue
+					##### ADD CODE HERE
 					
 					b isMulOrDiv
-			
-				isMulOrDiv_pushInputToOperatorStack:
-					# push $t1 to OperatorStack
-					addi $sp, $sp, -4
-					sw $t1, 0($sp)
 					
-					b InPostConversion	# move to the next element of the array
+				pushPoppedElementBackToOperatorStack_duplicate:
+					lw $t7, OperatorStack_TopIndex	# load current OperatorStack_TopIndex
+					addi $t7, $t7, 4
+					sw $s7, OperatorStack($t7)
+					sw $t7, OperatorStack_TopIndex	# update OperatorStack_TopIndex
+						
+				pushInputToOperatorStack_duplicate:
+					# push $t1 to OperatorStack
+					lw $t7, OperatorStack_TopIndex	# load current OperatorStack_TopIndex
+					addi $t7, $t7, 4
+					sw $t1, OperatorStack($t7)
+					sw $t7, OperatorStack_TopIndex	# update OperatorStack_TopIndex
+					
+					##### b InPostConversion	# move to the next element of the array
+					b end ##### TEMPORARY; REMOVE THIS LINE
 
 			isOpenParen: 
 					# push $t1 to OperatorStack
-					addi $sp, $sp, -4
-					sw $t1, 0($sp)
+					lw $t7, OperatorStack_TopIndex	# load current OperatorStack_TopIndex
+					addi $t7, $t7, 4
+					sw $t1, OperatorStack($t7)
+					sw $t7, OperatorStack_TopIndex	# update OperatorStack_TopIndex
 					
-					b InPostConversion	# move to the next element of the array
+					##### b InPostConversion	# move to the next element of the array
+					b end ##### TEMPORARY; REMOVE THIS LINE
 			
 			isCloseParen: 
-				# $s6 is OPERATOR STACK 
-				# if OperatorStack is empty, go to pushInputToOperatorStack
-				lw $s6, 0($sp)		
-				beq $s6, $zero, popOffOperatorStack
+				# if OperatorStack is empty, go to popOperatorStack
+				lw $s6, OperatorStack_TopIndex			
+				beq $s6, $zero, popOperatorStack
 				
 				# else if the OperatorStack is NOT empty
-					# pop off the top element $s7 of the OperatorStack
-					lw $s7, 0($sp)	
-					addi $sp, $sp, 4
+				
+				# pop off the top element $s7 of the OperatorStack
+				lw $t7, OperatorStack_TopIndex	# load current OperatorStack_TopIndex
+				lw $s7, OperatorStack($t7)	# save OperatorStack top element to $s7, then pop it off
+				addi $t7, $t7, -4
+				sw $t7, OperatorStack_TopIndex	# update OperatorStack_TopIndex
 					
-					# if $s7 == (, then pop $s7 from the OperatorStack
-					beq $s0, $s7, popOffOperatorStack # if $s7 == (
+					# check if $s7 is ( 
+					# if $s7 == (
+					beq $s0, $s7, popOperatorStack
 					
-					# PUSH $S7 TO OutputQueue
+					##### PUSH $S7 TO OutputQueue
 					
-					b isMulOrDiv
+					b isCloseParen
 			
-				popOffOperatorStack:
+				popOperatorStack:
 					# pop off the top element $s7 of the OperatorStack
-					lw $s7, 0($sp)	
-					addi $sp, $sp, 4
+					lw $t7, OperatorStack_TopIndex	# load current OperatorStack_TopIndex
+					lw $s7, OperatorStack($t7)
+					addi $t7, $t7, -4
+					sw $t7, OperatorStack_TopIndex	# update OperatorStack_TopIndex
 					
-					b InPostConversion	# move to the next element of the array
+					##### b InPostConversion	# move to the next element of the array
+					b end ##### TEMPORARY; REMOVE THIS LINE
 
 		end:
+    
 
 .data
+OperatorStack: .space 200	# Array to store the OperatorStack elements
+OperatorStack_TopIndex: .word 0	# Initialize TopIndex to 0
 
 .include "utils.asm"
 	
