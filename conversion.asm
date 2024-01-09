@@ -53,7 +53,9 @@
 					beq $s4, $s7, pushInputToOperatorStack	
 					beq $s5, $s7, pushInputToOperatorStack
 					
-					##### PUSH $S7 TO OutputQueue; ADD CODE HERE
+					# PUSH $S7 TO OutputQueue
+					move $a0, $s7 #move $s7 to $a0 as it will be used by the subprogram
+					jal enqueue
 					
 					b isAddOrSub
 				
@@ -90,7 +92,9 @@
 					# if $s7 == ( 
 					beq $s0, $s7, pushPoppedElementBackToOperatorStack_duplicate # then pushInputToOperatorStack_duplicate
 					
-					##### PUSH $S7 TO OutputQueue; ADD CODE HERE
+					#PUSH $S7 TO OutputQueue
+					move $a0, $s7 #move $s7 to $a0 as it will be used by the subprogram
+					jal enqueue
 					
 					b isMulOrDiv
 					
@@ -158,4 +162,5 @@ OperatorStack: .space 200	# Array to store the OperatorStack elements
 OperatorStack_TopIndex: .word 0	# Initialize TopIndex to 0
 
 .include "utils.asm"
+.include "queue.asm"
 	
