@@ -53,8 +53,7 @@
 					beq $s4, $s7, pushInputToOperatorStack	
 					beq $s5, $s7, pushInputToOperatorStack
 					
-					##### PUSH $S7 TO OutputQueue
-					##### ADD CODE HERE
+					##### PUSH $S7 TO OutputQueue; ADD CODE HERE
 					
 					b isAddOrSub
 				
@@ -73,7 +72,6 @@
 					sw $t7, OperatorStack_TopIndex	# update OperatorStack_TopIndex
 					
 					##### b InPostConversion	# move to the next element of the array
-					b end ##### TEMPORARY; REMOVE THIS LINE
 			
 			isMulOrDiv:
 				# if OperatorStack is empty, go to pushInputToOperatorStack
@@ -92,8 +90,7 @@
 					# if $s7 == ( 
 					beq $s0, $s7, pushPoppedElementBackToOperatorStack_duplicate # then pushInputToOperatorStack_duplicate
 					
-					##### PUSH $S7 TO OutputQueue
-					##### ADD CODE HERE
+					##### PUSH $S7 TO OutputQueue; ADD CODE HERE
 					
 					b isMulOrDiv
 					
@@ -111,17 +108,15 @@
 					sw $t7, OperatorStack_TopIndex	# update OperatorStack_TopIndex
 					
 					##### b InPostConversion	# move to the next element of the array
-					b end ##### TEMPORARY; REMOVE THIS LINE
 
 			isOpenParen: 
-					# push $t1 to OperatorStack
-					lw $t7, OperatorStack_TopIndex	# load current OperatorStack_TopIndex
-					addi $t7, $t7, 4
-					sw $t1, OperatorStack($t7)
-					sw $t7, OperatorStack_TopIndex	# update OperatorStack_TopIndex
-					
-					##### b InPostConversion	# move to the next element of the array
-					b end ##### TEMPORARY; REMOVE THIS LINE
+				# push $t1 to OperatorStack
+				lw $t7, OperatorStack_TopIndex	# load current OperatorStack_TopIndex
+				addi $t7, $t7, 4
+				sw $t1, OperatorStack($t7)
+				sw $t7, OperatorStack_TopIndex	# update OperatorStack_TopIndex
+				
+				##### b InPostConversion	# move to the next element of the array
 			
 			isCloseParen: 
 				# if OperatorStack is empty, go to popOperatorStack
@@ -140,7 +135,7 @@
 					# if $s7 == (
 					beq $s0, $s7, popOperatorStack
 					
-					##### PUSH $S7 TO OutputQueue
+					##### PUSH $S7 TO OutputQueue; ADD CODE HERE
 					
 					b isCloseParen
 			
@@ -152,9 +147,10 @@
 					sw $t7, OperatorStack_TopIndex	# update OperatorStack_TopIndex
 					
 					##### b InPostConversion	# move to the next element of the array
-					b end ##### TEMPORARY; REMOVE THIS LINE
 
 		end:
+			#### To debug, copy the popOperatorStack code here
+			jal Exit
     
 
 .data
