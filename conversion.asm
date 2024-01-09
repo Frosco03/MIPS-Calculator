@@ -13,7 +13,6 @@
 		
 		#Value is a digit
 		dig:
-			#If digit, move the number to the output queue	
 			
 			b end
 			
@@ -23,5 +22,3 @@
 		end:
 
 .data
-
-.include "queue.asm"
