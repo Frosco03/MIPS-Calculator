@@ -139,7 +139,9 @@
 					# if $s7 == (
 					beq $s0, $s7, popOperatorStack
 					
-					##### PUSH $S7 TO OutputQueue; ADD CODE HERE
+					# PUSH $S7 TO OutputQueue
+					move $a0, $s7 #move $s7 to $a0 as it will be used by the subprogram
+					jal enqueue
 					
 					b isCloseParen
 			
