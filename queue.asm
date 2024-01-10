@@ -1,17 +1,17 @@
 .text
 	queue_contstruct:
-		###Set the number of members of the array to the number of characters parsed by copying a counter from main to a specific register here
-		li $t0, 100	#counter = number of members of the array
-		la $t1, array
+		###Set the number of members of the queueArray to the number of characters parsed by copying a counter from main to a specific register here
+		li $t0, 100	#counter = number of members of the queueArray
+		la $t1, queueArray
 	
 	enqueue:
 		#store the return address 
 		addi $sp, $sp, -4
 		sw $ra, 0($sp)
 		
-		beqz $t0, end_input #skip the queue if array is full
+		beqz $t0, end_input #skip the queue if queueArray is full
 	
-		#Value that will be stored in the array is at $a0
+		#Value that will be stored in the queueArray is at $a0
 		sw $a0, 0($t1)
 		addi $t1, $t1, 4
 		
@@ -25,7 +25,7 @@
 	
 	end_input:
 		li $t0, 100	#counter
-		la $t1, array
+		la $t1, queueArray
 		
 	output_loop:
 		beqz $t0, exit
@@ -57,7 +57,7 @@
 		sw $ra, 0($sp)
 		
 		li $t0, 100	#counter
-		la $t1, array
+		la $t1, queueArray
 		
 		#Get the return address and return the memory
 		lw $ra, 0($sp)
@@ -67,8 +67,6 @@
 
 .data
 	.align 4
-	prompt: .asciiz "Please enter a number: "
-	array: .space 20 #no of members in the array * 4 bytes per word
+	queuePrompt: .asciiz "Please enter a number: "
+	queueArray: .space 20 #no of members in the queueArray * 4 bytes per word
 	answer: .asciiz " "
-
-.include "utils.asm"
