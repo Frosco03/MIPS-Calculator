@@ -7,12 +7,6 @@
 # 3. When the expression is fully scanned, the number in the OperandStack is the final answer.
 
 .text
-	# Tokens: 
-	li $s0, '+' 	# add_op
-	li $s1, '-' 	# sub_op
-	li $s2, '*' 	# mul_op
-	li $s3, '/' 	# div_op
-	
 	PostEvaluation:
 		# If the element is an operand, push it into the OperandStack.
 		# If the element is an operator, pop two elements from the OperandStack.
@@ -20,10 +14,7 @@
 		# Check if the current array value is a number
 		# Assume that $t1 = member of the array
 		li  $t0, '0'
-		bltu   $t1,$t0, notdig        # Jump if char < '0'
-
-		li $t0,'9'
-		bltu   $t0,$t1, notdig       # Jump if '9' < char
+		blt $t1, $zero, notdig        # Jump if number < 0, because (+ is -57, - is -55, * is -58, / is -53)
 		
 		# If value is a digit, then push it to the OperandStack
 		dig:
@@ -36,22 +27,22 @@
 		notdig:
 			# num1 = $f1, num2 = $f2
 			# pop off the top element of the OperandStack, and load value to a float register
-			lw $t7, OperatorStack_TopIndex	# load current OperandStack_TopIndex
-			l.s $f2, OperatorStack($t7)	# save OperandStack top element to $s7, then pop it off
+			lw $t7, OperandStack_TopIndex	# load current OperandStack_TopIndex
+			l.s $f2, OperandStack($t7)	# save OperandStack top element to $s7, then pop it off
 			addi $t7, $t7, -4
-			sw $t7, OperatorStack_TopIndex	# update OperatorStack_TopIndex
+			sw $t7, OperandStack_TopIndex	# update OperatorStack_TopIndex
 			
 			# pop off the top element of the OperandStack, and load value to a float register
-			lw $t7, OperatorStack_TopIndex	# load current OperandStack_TopIndex
-			l.s $f1, OperatorStack($t7)	# save OperandStack top element to $s6, then pop it off
+			lw $t7, OperandStack_TopIndex	# load current OperandStack_TopIndex
+			l.s $f1, OperandStack($t7)	# save OperandStack top element to $s6, then pop it off
 			addi $t7, $t7, -4
-			sw $t7, OperatorStack_TopIndex	# update OperatorStack_TopIndex
+			sw $t7, OperandStack_TopIndex	# update OperatorStack_TopIndex
 			
 			# perform operation on $f1 and $f2 based on operator
-			beq $s0, $t1, doAdd	# if $t1 == + 
-			beq $s1, $t1, doSub	# if $t1 = -
-			beq $s2, $t1, doMul	# if $t1 == * 
-			beq $s3, $t1, doDiv	# if $t1 == /
+			beq $t1, -57, doAdd	# if $t1 == + 	== (add_op ascii = 43) - 100
+			beq $t1, -55, doSub	# if $t1 == -	== (sub_op ascii = 45) - 100
+			beq $t1, -58, doMul	# if $t1 == * 	== (mul_op ascii = 42) - 100
+			beq $t1, -53, doDiv	# if $t1 == /	== (div_op ascii = 47) - 100
 			
 			doAdd:
 				add.s $f0, $f1, $f2
