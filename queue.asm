@@ -1,5 +1,6 @@
 .text
 	queue_contstruct:
+		###Set the number of members of the array to the number of characters parsed by copying a counter from main to a specific register here
 		li $t0, 100	#counter = number of members of the array
 		la $t1, array
 	
@@ -23,7 +24,7 @@
 		jr $ra
 	
 	end_input:
-		li $t0, 5	#counter
+		li $t0, 100	#counter
 		la $t1, array
 		
 	output_loop:
@@ -36,9 +37,33 @@
 		
 		addi $t0, $t0, -1
 		b output_loop
-	
-	exit:
-		jal Exit
+		
+	getNext:
+		beqz $t0, exit
+		
+		lw $t9, 0($t1) #Store the next element in $t9
+		addi $t1, $t1, 4 #go to the next element
+		
+		exit:
+			#Get the return address and return the memory
+			lw $ra, 0($sp)
+			addi $sp, $sp, 4
+		
+			jr $ra
+		
+	resetIndex:
+		#store the return address 
+		addi $sp, $sp, -4
+		sw $ra, 0($sp)
+		
+		li $t0, 100	#counter
+		la $t1, array
+		
+		#Get the return address and return the memory
+		lw $ra, 0($sp)
+		addi $sp, $sp, 4
+		
+		jr $ra
 
 .data
 	.align 4
