@@ -8,83 +8,93 @@
 	# $s5 -> div
   Tokenize:
   	# load tokens
-  	la $s0, open_paren
-  	la $s1, close_paren
-  	la $s2, add_op
-  	la $s3, sub_op
-  	la $s4, mul_op
-  	la $s5, div_op
+  	lb $s0, open_paren
+  	lb $s1, close_paren
+  	lb $s2, add_op
+  	lb $s3, sub_op
+  	lb $s4, mul_op
+  	lb $s5, div_op
+  	# token_array
+    	#$a0 -> expression
+  	la $a0, ex_expression
+  	move $a1, $a0
+  	move $a0, $zero
+
+  	la $a2, array
   	
   	# numeric data
-  	li $t4, 48
-  	li $t5, 57
+  	li $t1, 48
+  	li $t2, 9
   	
-  	#$a0 -> expression
-  	la $a0, ex_expression
-  	# load the adress of the string (at $a0) into a register
-  	la $t0, ($a0)
-  	
-  	#iterate through the string
-  	loop:
-  		lb $t1, ($t0)
-	  	beq $t1, $zero, end_loop
-	  	
-	  	#processing the character
-	  	# check if the character is open_paren
-	  	lb $t2, ($s0)
-	  	beq $t1, $t2, found_ParenOp
-	  	# check if the character is close_paren
-	  	lb $t2, ($s1)
-	  	beq $t1, $t2, found_ParenOp
-	  	# check if equal to each operator
-	  	lb $t2, ($s2)
-	  	beq $t1, $t2, found_ParenOp
-	  	lb $t2, ($s3)
-	  	beq $t1, $t2, found_ParenOp
-	  	lb $t2, ($s4)
-	  	beq $t1, $t2, found_ParenOp
-	  	lb $t2, ($s5)
-	  	beq $t1, $t2, found_ParenOp
-	  	# check if the current character is numeric
-		sub $t3, $t1, $t4
-		blt $t3, $t4, end_loop #if character is less than zero, it's non numeric
-		bgt $t1, $t5, end_loop # if character is more than 9, it's non numeric
-		# the character here is numeric
-		move $a1, $a0
-		addi $t7, $a1, 1
-		extract_number:
-			lb $t2, ($t7)
-			blt $t2, $t4, end_extraction
-			bgt $t2, $t5, end_extraction
-			
-			addi $a1, $a1, 1
-			j extract_number
-		end_extration:
-			sub $t6, $a0, $a1
-			add $t6, $a1, $t6
-			sb $zero, ($t6)
-			sw $a1, ($t8)
-			addi $t8, $t8, 4
-			add $a1, $a1, $t6
-			j loop
-		found_ParenOp:
-			sw $t1, ($t8)
-			addi $t8, $t8, 4
-			
-			
-		end_loop:
-	  		# move to the next character
-	  		addi $t0, $t0, 1
-	  		j loop
-	  	
-   
-.data 
-ex_expression: .asciiz "3+4*(2/3)"
-open_paren: .asciiz "("
-close_paren: .asciiz ")"
-add_op: .asciiz "+"
-sub_op: .asciiz "-"
-mul_op: .asciiz "*"
-div_op: .asciiz "/"
 
-array: .space 51
+  	# each character is in $t3
+  	
+  	loop: 
+  		lb $t3, ($a1) # comparing the current character
+  		beq $t3, $zero, end_loop
+  		beq $t3, $s0, parenOp_found
+   		beq $t3, $s1, parenOp_found
+  		beq $t3, $s2, parenOp_found
+  		beq $t3, $s3, parenOp_found
+  		beq $t3, $s4, parenOp_found
+  		beq $t3, $s5, parenOp_found
+  		# if it's not  paren or Op, then I need to check if it's a number
+  		 
+  		sub $t4, $t3, $t1
+  		bltz $t4, not_valid
+		bgt $t4, $t2, not_valid
+  		# it's a number
+  		# make BUFFER
+  		move $t5, $zero
+  		number_loop:
+  			lb $t3, ($a1)
+  		  	sub $t4, $t3, $t1
+
+  			bltz $t4, not_numeric
+  			bgt $t4, $t2, not_numeric
+
+  			mul $t5, $t5, 10
+  			add $t5, $t5, $t4
+
+  			addi $a1, $a1, 1
+  			
+  			j number_loop
+  			
+  		not_numeric:
+  			sw $t5, ($a2)
+  			addi $a2, $a2, 4
+  			j loop
+  		not_valid:
+  			la $a0, notvalid
+  			jal PrintString
+  			jal Exit
+
+  	
+  	parenOp_found:
+		# push to stack
+		sb $t3, ($a2)
+  		addi $a2, $a2, 4
+  		addi $a1, $a1, 1
+
+		jr $ra
+
+  	end_loop:
+  		jal Exit
+  		
+.data 
+	ex_expression: .asciiz "(33+3)/15"
+	open_paren: .ascii "("
+	close_paren: .ascii ")"
+	add_op: .ascii "+"
+	sub_op: .ascii "-"
+	mul_op: .ascii "*"
+	div_op: .ascii "/"
+	parenOp: .asciiz "ParenOp, "
+	numeric: .asciiz "a number, "
+	debugger: .asciiz "hakhak"
+	notvalid: .asciiz "syntax error"
+
+	yay: .asciiz "yay!"
+	.align 4
+	array: .space 20
+	.include "utils.asm"
