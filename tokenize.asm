@@ -16,8 +16,8 @@
   	lb $s5, div_op
   	# token_array
     	#$a0 -> expression
-  	la $a0, ex_expression
-  	move $a1, $a0
+
+  	move $a1, $a0 # from $a0 (string input to $a1)
   	move $a0, $zero
 
   	la $a2, array
@@ -76,13 +76,14 @@
   		addi $a2, $a2, 4
   		addi $a1, $a1, 1
 
-		jr $ra
+		j loop
 
   	end_loop:
-  		jal Exit
+  		la $a2, array # tokenized array
+  		jr $ra
+
   		
 .data 
-	ex_expression: .asciiz "(33+3)/15"
 	open_paren: .ascii "("
 	close_paren: .ascii ")"
 	add_op: .ascii "+"
