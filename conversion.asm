@@ -160,8 +160,9 @@
     
 
 .data
-OperatorStack: .space 200	# Array to store the OperatorStack elements
-OperatorStack_TopIndex: .word 0	# Initialize TopIndex to 0
+	.align 4
+	OperatorStack: .space 200	# Array to store the OperatorStack elements
+	OperatorStack_TopIndex: .word 0	# Initialize TopIndex to 0
 
 .include "utils.asm"
 .include "queue.asm"
