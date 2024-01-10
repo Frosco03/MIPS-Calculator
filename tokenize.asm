@@ -95,4 +95,5 @@ Tokenize:
 	
 	.align 4
 	array: .space 20
-	.include "utils.asm"
+
+
