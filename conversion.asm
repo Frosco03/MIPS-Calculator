@@ -16,7 +16,7 @@
 	move $a1, $a0	# from $a0 (string input to $a1)
 	li $t2, 0
 	
-	loop:
+	conversionLoop:
 		#Joenne: Check if the value of array is an operator and add to stack accordingly 
 		#James: Check if the value of array is a number and add to queue accordingly
 
@@ -41,7 +41,7 @@
 			move $a0, $s7 #move $s7 to $a0 as it will be used by the subprogram
 			jal enqueue
 			
-			b loop
+			b conversionLoop
 			
 		#Value is not a digit
 		notdig:
@@ -93,7 +93,7 @@
 					sw $t1, OperatorStack($t7)
 					sw $t7, OperatorStack_TopIndex	# update OperatorStack_TopIndex
 					
-					b loop	# move to the next element of the array
+					b conversionLoop	# move to the next element of the array
 			
 			isMulOrDiv:
 				# if OperatorStack is empty, go to pushInputToOperatorStack
@@ -132,7 +132,7 @@
 					sw $t1, OperatorStack($t7)
 					sw $t7, OperatorStack_TopIndex	# update OperatorStack_TopIndex
 					
-					b loop	# move to the next element of the array
+					b conversionLoop	# move to the next element of the array
 
 			isOpenParen: 
 				# push $t1 to OperatorStack
@@ -141,7 +141,7 @@
 				sw $t1, OperatorStack($t7)
 				sw $t7, OperatorStack_TopIndex	# update OperatorStack_TopIndex
 				
-				b loop	# move to the next element of the array
+				b conversionLoop	# move to the next element of the array
 			
 			isCloseParen: 
 				# if OperatorStack is empty, go to popOperatorStack
@@ -174,7 +174,7 @@
 					addi $t7, $t7, -4
 					sw $t7, OperatorStack_TopIndex	# update OperatorStack_TopIndex
 					
-					b loop	# move to the next element of the array
+					b conversionLoop	# move to the next element of the array
 
 		end:
 			# if OperatorStack is empty, go to endProgram
