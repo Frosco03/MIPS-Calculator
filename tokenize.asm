@@ -6,7 +6,8 @@
 	# $s3 -> sub
 	# $s4 -> mul
 	# $s5 -> div
-  Tokenize:
+Tokenize:
+
   	# load tokens
   	lb $s0, open_paren
   	lb $s1, close_paren
@@ -25,13 +26,13 @@
   	# numeric data
   	li $t1, 48
   	li $t2, 9
-  	
+  
 
   	# each character is in $t3
   	
   	loop: 
   		lb $t3, ($a1) # comparing the current character
-  		beq $t3, $zero, end_loop
+  		beq $t3, '\n', end_loop
   		beq $t3, $s0, parenOp_found
    		beq $t3, $s1, parenOp_found
   		beq $t3, $s2, parenOp_found
@@ -40,10 +41,10 @@
   		beq $t3, $s5, parenOp_found
   		# if it's not  paren or Op, then I need to check if it's a number
   		 
-  		sub $t4, $t3, $t1
+  		# it's a number
+   		sub $t4, $t3, $t1
   		bltz $t4, not_valid
 		bgt $t4, $t2, not_valid
-  		# it's a number
   		# make BUFFER
   		move $t5, $zero
   		number_loop:
@@ -64,11 +65,11 @@
   			sw $t5, ($a2)
   			addi $a2, $a2, 4
   			j loop
-  		not_valid:
-  			la $a0, notvalid
-  			jal PrintString
-  			jal Exit
-
+		not_valid:
+			la $a0, notvalid
+			jal PromptString
+			jal Exit
+			
   	
   	parenOp_found:
 		# push to stack
@@ -79,7 +80,7 @@
 		j loop
 
   	end_loop:
-  		la $a2, array # tokenized array
+  		la $a0, array
   		jr $ra
 
   		
@@ -90,12 +91,8 @@
 	sub_op: .ascii "-"
 	mul_op: .ascii "*"
 	div_op: .ascii "/"
-	parenOp: .asciiz "ParenOp, "
-	numeric: .asciiz "a number, "
-	debugger: .asciiz "hakhak"
-	notvalid: .asciiz "syntax error"
-
-	yay: .asciiz "yay!"
+	notvalid: .asciiz "Error!"
+	
 	.align 4
 	array: .space 20
 	.include "utils.asm"
