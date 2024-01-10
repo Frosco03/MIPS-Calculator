@@ -9,12 +9,22 @@
 	li $s5, '/' 	# div_op
 	
 	# Get the tokenized infix expression 
+<<<<<<< HEAD
 	move $t2, $a2
+=======
+	la $a0, TokenizedInfixExpression
+	move $a1, $a0	# from $a0 (string input to $a1)
+	li $t2, 0
+>>>>>>> 7d5d135983a2b32b8cd6f89c3aa199915b814eb1
 	
 	loop:
 		#Joenne: Check if the value of array is an operator and add to stack accordingly 
 		#James: Check if the value of array is a number and add to queue accordingly
+<<<<<<< HEAD
 		lw $s7, 0($t2)
+=======
+		lw $s7, TokenizedInfixExpression($t2)
+>>>>>>> 7d5d135983a2b32b8cd6f89c3aa199915b814eb1
 		beq $s7, $zero, end	# if there 
 		lb $t1, ($s7)		# read the first byte of one word
 		addi $t2, $t2, 4	# increment to move to next element of array tokenized_infix_expression
@@ -197,7 +207,10 @@
 	OperatorStack: .space 200	# Array to store the OperatorStack elements
 	OperatorStack_TopIndex: .word 0	# Initialize TopIndex to 0
 	TokenizedInfixExpression: .word 100
+<<<<<<< HEAD
 
+=======
+>>>>>>> 7d5d135983a2b32b8cd6f89c3aa199915b814eb1
 
 .include "queue.asm"
 	
