@@ -9,13 +9,13 @@
 	li $s5, '/' 	# div_op
 	
 	# Get the tokenized infix expression 
-	la $t2, ($a2)
+	move $t2, $a2
 	
 	conversionLoop:
 		lw $s7, 0($t2)		# save the current element of infix expression array
-		#beq $s7, $zero, end	# if you are at the end of the infix expression array, go to end 
-		lb $t3, ($s7)		# else, read the first byte of one word
-		addi $t2, $t2, 4	# increment to move to next element of infix expression array
+		addi $t2, $t2, 4	# increment so in next iteration, we read next element of $a2 array
+		beq $s7, $zero, end	# if you are at the end of the infix expression array, go to end 
+		lb $t3, 0($s7)		# else, read the first byte of one word
 		
 		#Check if the current array value is a number
 		#Assume that $t3 = member of the array
@@ -55,7 +55,6 @@
 				addi $t7, $t7, -4
 				sw $t7, OperatorStack_TopIndex	# update OperatorStack_TopIndex
 					
-					# check if $s7 is ( * / 
 					# if $s7 == (
 					beq $s0, $s7, pushPoppedElementBackToOperatorStack # then pushInputToOperatorStack
 					# else if $s7 == *  /
@@ -98,7 +97,6 @@
 				addi $t7, $t7, -4
 				sw $t7, OperatorStack_TopIndex	# update OperatorStack_TopIndex
 					
-					# check if $s7 is (
 					# if $s7 == ( 
 					beq $s0, $s7, pushPoppedElementBackToOperatorStack_duplicate # then pushInputToOperatorStack_duplicate
 					
@@ -146,7 +144,6 @@
 				addi $t7, $t7, -4
 				sw $t7, OperatorStack_TopIndex	# update OperatorStack_TopIndex
 					
-					# check if $s7 is ( 
 					# if $s7 == (
 					beq $s0, $s7, popOperatorStack
 					
@@ -187,14 +184,13 @@
 			j end
 		
 		endProgram:
-			#jal getNext
-			
 			jr $ra		#### To debug, copy the popOperatorStack code here
     
 .data
 	.align 4
 	OperatorStack: .space 200	# Array to store the OperatorStack elements
 	OperatorStack_TopIndex: .word 0	# Initialize TopIndex to 0
+	InfixExpression: .space 20
 
 .include "queue.asm"
 	
