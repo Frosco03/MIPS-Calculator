@@ -9,35 +9,25 @@
 	li $s5, '/' 	# div_op
 	
 	# Get the tokenized infix expression 
-
-	move $t2, $a2
-
-	la $a0, TokenizedInfixExpression
-	move $a1, $a0	# from $a0 (string input to $a1)
-	li $t2, 0
+	la $t2, ($a2)
 	
 	conversionLoop:
-		#Joenne: Check if the value of array is an operator and add to stack accordingly 
-		#James: Check if the value of array is a number and add to queue accordingly
-
-		lw $s7, 0($t2)
-		lw $s7, TokenizedInfixExpression($t2)
-
-		beq $s7, $zero, end	# if there 
-		lb $t1, ($s7)		# read the first byte of one word
-		addi $t2, $t2, 4	# increment to move to next element of array tokenized_infix_expression
+		lw $s7, 0($t2)		# save the current element of infix expression array
+		#beq $s7, $zero, end	# if you are at the end of the infix expression array, go to end 
+		lb $t3, ($s7)		# else, read the first byte of one word
+		addi $t2, $t2, 4	# increment to move to next element of infix expression array
 		
 		#Check if the current array value is a number
-		#Assume that $t1 = member of the array
-		li  $t0, '0'
-		bltu $t1, $t0, notdig        # Jump if char < '0'
+		#Assume that $t3 = member of the array
+		li  $t4, '0'
+		bltu $t3, $t4, notdig        # Jump if char < '0'
 
-		li $t0,'9'
-		bltu $t0, $t1, notdig       # Jump if '9' < char
+		li $t4,'9'
+		bltu $t4, $t3, notdig       # Jump if '9' < char
 		
 		#Value is a digit
 		dig:
-			# PUSH $S7 TO OutputQueue; $s7 first byte is a digit, so push the whole word and not juist 1 byte or $t1
+			# PUSH $S7 TO OutputQueue; $s7 first byte is a digit, so push the whole word and not juist 1 byte or $t3
 			move $a0, $s7 #move $s7 to $a0 as it will be used by the subprogram
 			jal enqueue
 			
@@ -45,12 +35,12 @@
 			
 		#Value is not a digit
 		notdig:
-			beq $s2, $t1, isAddOrSub	# if $t1 == + 
-			beq $s3, $t1, isAddOrSub	# if $t1 = -
-			beq $s4, $t1, isMulOrDiv	# if $t1 == * 
-			beq $s5, $t1, isMulOrDiv	# if $t1 == /
-			beq $s0, $t1, isOpenParen	# if $t1 == (
-			beq $s1, $t1, isCloseParen	# if $t1 == )
+			beq $s2, $t3, isAddOrSub	# if $t3 == + 
+			beq $s3, $t3, isAddOrSub	# if $t3 = -
+			beq $s4, $t3, isMulOrDiv	# if $t3 == * 
+			beq $s5, $t3, isMulOrDiv	# if $t3 == /
+			beq $s0, $t3, isOpenParen	# if $t3 == (
+			beq $s1, $t3, isCloseParen	# if $t3 == )
 			
 			isAddOrSub:
 				# if OperatorStack is empty, go to pushInputToOperatorStack
@@ -87,10 +77,10 @@
 					sw $t7, OperatorStack_TopIndex	# update OperatorStack_TopIndex
 			
 				pushInputToOperatorStack:
-					# push $t1 to OperatorStack
+					# push $t3 to OperatorStack
 					lw $t7, OperatorStack_TopIndex	# load current OperatorStack_TopIndex
 					addi $t7, $t7, 4
-					sw $t1, OperatorStack($t7)
+					sw $t3, OperatorStack($t7)
 					sw $t7, OperatorStack_TopIndex	# update OperatorStack_TopIndex
 					
 					b conversionLoop	# move to the next element of the array
@@ -126,19 +116,19 @@
 					sw $t7, OperatorStack_TopIndex	# update OperatorStack_TopIndex
 						
 				pushInputToOperatorStack_duplicate:
-					# push $t1 to OperatorStack
+					# push $t3 to OperatorStack
 					lw $t7, OperatorStack_TopIndex	# load current OperatorStack_TopIndex
 					addi $t7, $t7, 4
-					sw $t1, OperatorStack($t7)
+					sw $t3, OperatorStack($t7)
 					sw $t7, OperatorStack_TopIndex	# update OperatorStack_TopIndex
 					
 					b conversionLoop	# move to the next element of the array
 
 			isOpenParen: 
-				# push $t1 to OperatorStack
+				# push $t3 to OperatorStack
 				lw $t7, OperatorStack_TopIndex	# load current OperatorStack_TopIndex
 				addi $t7, $t7, 4
-				sw $t1, OperatorStack($t7)
+				sw $t3, OperatorStack($t7)
 				sw $t7, OperatorStack_TopIndex	# update OperatorStack_TopIndex
 				
 				b conversionLoop	# move to the next element of the array
@@ -197,14 +187,14 @@
 			j end
 		
 		endProgram:
+			#jal getNext
+			
 			jr $ra		#### To debug, copy the popOperatorStack code here
     
-
 .data
 	.align 4
 	OperatorStack: .space 200	# Array to store the OperatorStack elements
 	OperatorStack_TopIndex: .word 0	# Initialize TopIndex to 0
-	TokenizedInfixExpression: .word 100
 
 .include "queue.asm"
 	
