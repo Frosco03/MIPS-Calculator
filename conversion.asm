@@ -12,9 +12,8 @@
 	move $t2, $a0
 	
 	conversionLoop:
-		lw $s7, 0($t2)		# save the current element of infix expression array
-		move $t3, $s7
-		beq $s7, $zero, end	# if you are at the end of the infix expression array, go to end 
+		lw $t3, 0($t2)		# save the current element of infix expression array
+		beq $t3, $zero, end	# if you are at the end of the infix expression array, go to end 
 		lb $t4, 0($t2)		# else, read the first byte of current element
 		addi $t2, $t2, 4	# increment so in next iteration, we read next element of array
 			
@@ -29,9 +28,17 @@
 		
 		# Else, value is a digit
 		dig:
-			# PUSH $S7 TO OutputQueue; $t4 is 1 byte of word $s7, so push $s7 
-			move $a0, $s7 #move $s7 to $a0 as it will be used by the subprogram
-			jal enqueue
+			# PUSH $t3 TO OutputQueue since word $t3 has byte $t4 
+			move $a0, $t3 #move $t3 to $a0 as it will be used by the subprogram
+			####jal enqueue
+			####DEBUGGER START: USED TO SEE POSTFIX IN OUTPUTQUEUE 
+			li $v0, 1
+			move $a0, $t3
+			syscall
+			li $v0, 4
+			la $a0, debugging_space
+			syscall
+			#####DEBUGGER END
 			
 			j conversionLoop
 		
@@ -57,8 +64,16 @@
 					
 				# PUSH $S7 TO OutputQueue 
 				addi $s7, $s7, -100	# deduct 100 from operator since it will be pushed to OutputQueue as a number
-				move $a0, $s7 #move $s7 to $a0 as it will be used by the subprogram
-				jal enqueue
+				move $a0, $s7 		# move $s7 to $a0 as it will be used by the subprogram
+				####jal enqueue
+				####DEBUGGER START: USED TO SEE POSTFIX IN OUTPUTQUEUE 
+				li $v0, 1
+				move $a0, $s7
+				syscall
+				li $v0, 4
+				la $a0, debugging_space
+				syscall
+				#####DEBUGGER END
 					
 				j isAddOrSub
 				
@@ -70,7 +85,7 @@
 				sw $t7, OperatorStack_TopIndex	# update OperatorStack_TopIndex
 			
 			pushInputToOperatorStack:
-				# push $t4 to OperatorStack
+				# push $t3 to OperatorStack
 				lw $t7, OperatorStack_TopIndex	# load current OperatorStack_TopIndex
 				addi $t7, $t7, 4
 				sw $t3, OperatorStack($t7)
@@ -97,7 +112,15 @@
 				#PUSH $S7 TO OutputQueue
 				addi $s7, $s7, -100	# deduct 100 from operator since it will be pushed to OutputQueue as a number
 				move $a0, $s7 #move $s7 to $a0 as it will be used by the subprogram
-				jal enqueue
+				####jal enqueue
+				####DEBUGGER START: USED TO SEE POSTFIX IN OUTPUTQUEUE 
+				li $v0, 1
+				move $a0, $s7
+				syscall
+				li $v0, 4
+				la $a0, debugging_space
+				syscall
+				#####DEBUGGER END
 					
 				j isMulOrDiv
 					
@@ -120,7 +143,7 @@
 			# push $t4 to OperatorStack
 			lw $t7, OperatorStack_TopIndex	# load current OperatorStack_TopIndex
 			addi $t7, $t7, 4
-			sw $t4, OperatorStack($t7)
+			sw $t3, OperatorStack($t7)
 			sw $t7, OperatorStack_TopIndex	# update OperatorStack_TopIndex
 				
 			j conversionLoop	# move to the next element of the array
@@ -144,7 +167,15 @@
 				# PUSH $S7 TO OutputQueue
 				addi $s7, $s7, -100	# deduct 100 from operator since it will be pushed to OutputQueue as a number
 				move $a0, $s7 #move $s7 to $a0 as it will be used by the subprogram
-				jal enqueue
+				####jal enqueue
+				####DEBUGGER START: USED TO SEE POSTFIX IN OUTPUTQUEUE 
+				li $v0, 1
+				move $a0, $s7
+				syscall
+				li $v0, 4
+				la $a0, debugging_space
+				syscall
+				#####DEBUGGER END
 					
 				j isCloseParen
 			
@@ -155,7 +186,7 @@
 				addi $t7, $t7, -4
 				sw $t7, OperatorStack_TopIndex	# update OperatorStack_TopIndex
 					
-				j conversionLoop	# move to the next element of the array
+				j conversionLoop	# move to the next element of the array	
 
 	end:
 		# if OperatorStack is empty, go to endProgram
@@ -173,17 +204,25 @@
 		# PUSH $S7 TO OutputQueue 
 		addi $s7, $s7, -100	# deduct 100 from operator since it will be pushed to OutputQueue as a number
 		move $a0, $s7		# move $s7 to $a0 as it will be used by the subprogram
-		jal enqueue
+		####jal enqueue
+		####DEBUGGER START: USED TO SEE POSTFIX IN OUTPUTQUEUE 
+		li $v0, 1
+		move $a0, $s7
+		syscall
+		li $v0, 4
+		la $a0, debugging_space
+		syscall
+		#####DEBUGGER END
 			
 		j end
 		
 	endProgram:
-		#jr $ra		#### To debug, copy the popOperatorStack code here
-    
+		jr $ra		#### To debug, copy the popOperatorStack code here
+
 .data
 	.align 4
 	OperatorStack: .space 200	# Array to store the OperatorStack elements
 	OperatorStack_TopIndex: .word 0	# Initialize TopIndex to 0
+	debugging_space: .asciiz " "
 
 .include "queue.asm"
-	
