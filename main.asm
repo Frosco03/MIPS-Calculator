@@ -11,8 +11,8 @@
 	
 	la $a0, buffer
 	jal Tokenize
-	jal Exit
-	# tokenized array at $a2
+	# tokenized array at $a0
+	
 	jal InPostConversion
 	
 	la $a0, yay
