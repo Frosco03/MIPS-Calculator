@@ -74,15 +74,14 @@
 	# If the end of the PostfixQueue is reached, then the result is top OperatorStack top element;
 	# 	pop off the top element of the OperandStack, and load value to a float register
 	printResult:
-		addi $s0, $s0, -4
-		l.s $f12, OperandStack($s0)	# save OperandStack top element to $f12, then pop it
-		#l.s $f13, 0.0        		# set $f13 to 0.0 (least significant half)
-	
 		# Print result text (with $v0 = 4)
 		li $v0, 4
 		la $a0, result
 		syscall
 		
+		addi $s0, $s0, -4
+		l.s $f12, OperandStack($s0)	# save OperandStack top element to $f12, then pop it
+		#l.s $f13, 0.0        		# set $f13 to 0.0 (least significant half)
 		# Print result float (with $v0 = 2 and $f12, $f3 loaded above)
 		li $v0, 2
 		syscall
