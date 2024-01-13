@@ -94,6 +94,6 @@ Tokenize:
 	notvalid: .asciiz "Error!"
 	
 	.align 4
-	array: .space 20
+	array: .space 200
 
 
