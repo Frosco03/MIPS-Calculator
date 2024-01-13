@@ -15,6 +15,8 @@
 	
 	jal InPostConversion
 	
+	jal PostEvaluation
+	
 	la $a0, yay
 	jal PrintString
 	
@@ -29,4 +31,5 @@
 
 .include "tokenize.asm"
 .include "conversion-revised.asm"
+.include "evaluate.asm"
 .include "utils.asm"

@@ -8,41 +8,45 @@
 
 .text
 	PostEvaluation:
-		# If the element is an operand, push it into the OperandStack.
-		# If the element is an operator, pop two elements from the OperandStack.
+	# Get the output queue array address
+	move $t2, $a0
+	li $s0, 0 		# Initialize OperandStack top index to 0
+	li $t0, 0		
+	la $t1, OperandStack	
+	
+	evaluationLoop:
+	lw $t3, 0($t2)		# save the current element of output queue
+	beq $t3, $zero, printResult	# if you are at the end of the output queue, go to end 
+	addi $t2, $t2, 4	# increment so in next iteration, we read next element of array
 		
-		# Check if the current array value is a number
-		# Assume that $t1 = member of the array
-		li  $t0, '0'
-		blt $t1, $zero, notdig        # Jump if number < 0, because (+ is -57, - is -55, * is -58, / is -53)
+		# If value is not a digit (value < 0)
+		# because + is -57, - is -55, * is -58, / is -53
+		bltz $t3, notdigit
 		
-		# If value is a digit, then push it to the OperandStack
-		dig:
-			#### PUSH IT TO OperandStack; ADD CODE HERE
-			
-			j end
+		# If value is a digit
+		digit:
+		# then push $t3 to the OperandStack
+		sw $t3, OperandStack($s0)	# store $t3 to OperatorStack
+		addi $s0, $s0, 4		# increment OperatorStack top index
+		j evaluationLoop
 			
 		# Else if value is not a digit, pop OperandStack twice and 
 		#	use the operator to perform operation on the two popped elements
-		notdig:
+		notdigit:
 			# num1 = $f1, num2 = $f2
 			# pop off the top element of the OperandStack, and load value to a float register
-			lw $t7, OperandStack_TopIndex	# load current OperandStack_TopIndex
-			l.s $f2, OperandStack($t7)	# save OperandStack top element to $s7, then pop it off
-			addi $t7, $t7, -4
-			sw $t7, OperandStack_TopIndex	# update OperatorStack_TopIndex
+			addi $s0, $s0, -4
+			l.s $f2, OperandStack($s0)	# save OperandStack top element to $f2, then pop it
 			
 			# pop off the top element of the OperandStack, and load value to a float register
-			lw $t7, OperandStack_TopIndex	# load current OperandStack_TopIndex
-			l.s $f1, OperandStack($t7)	# save OperandStack top element to $s6, then pop it off
-			addi $t7, $t7, -4
-			sw $t7, OperandStack_TopIndex	# update OperatorStack_TopIndex
-			
+			addi $s0, $s0, -4
+			l.s $f1, OperandStack($s0)	# save OperandStack top element to $f1, then pop it
+		
 			# perform operation on $f1 and $f2 based on operator
-			beq $t1, -57, doAdd	# if $t1 == + 	== (add_op ascii = 43) - 100
-			beq $t1, -55, doSub	# if $t1 == -	== (sub_op ascii = 45) - 100
-			beq $t1, -58, doMul	# if $t1 == * 	== (mul_op ascii = 42) - 100
-			beq $t1, -53, doDiv	# if $t1 == /	== (div_op ascii = 47) - 100
+			beq $t1, -57, doAdd	# if $t1 == + 	== (add_op ascii = 43) - 100 == -57
+			beq $t1, -55, doSub	# if $t1 == -	== (sub_op ascii = 45) - 100 == -55
+			beq $t1, -58, doMul	# if $t1 == * 	== (mul_op ascii = 42) - 100 == -58
+			beq $t1, -53, doDiv	# if $t1 == /	== (div_op ascii = 47) - 100 == -53
 			
 			doAdd:
 				add.s $f0, $f1, $f2
@@ -62,24 +66,17 @@
 				
 			# PUSH $f0 TO OperandStack
 			pushResultToOperandStack:
-				lw $t7, OperandStack_TopIndex	# load current OperatorStack_TopIndex
-				addi $t7, $t7, 4
-				swc1 $f0, OperandStack($t7)
-				sw $t7, OperandStack_TopIndex	# update OperatorStack_TopIndex
-				
-				#####b PostEvaluation	# move to next element of the queue
-				
-		end:
+				l.s $f0, OperandStack($s0)	# store $f0 to OperatorStack
+				addi $s0, $s0, 4		# increment OperatorStack top index
+				j evaluationLoop		# move to next element of the queue
+
 		
-		
-	printResult:
 	# If the end of the PostfixQueue is reached, then the result is top OperatorStack top element;
 	# 	pop off the top element of the OperandStack, and load value to a float register
-		lw $t7, OperandStack_TopIndex	# load current OperandStack_TopIndex
-		l.s $f12, OperandStack($t7)	# save OperandStack top element to $f12, then pop
-		li.s $f13, 0.0        		# set $f13 to 0.0 (least significant half)
-		addi $t7, $t7, -4
-		sw $t7, OperatorStack_TopIndex	# update OperatorStack_TopIndex
+	printResult:
+		addi $s0, $s0, -4
+		l.s $f12, OperandStack($s0)	# save OperandStack top element to $f12, then pop it
+		#l.s $f13, 0.0        		# set $f13 to 0.0 (least significant half)
 	
 		# Print result text (with $v0 = 4)
 		li $v0, 4
@@ -90,15 +87,10 @@
 		li $v0, 2
 		syscall
 		
-		jal Exit
+		jr $ra
 			
 			
 .data
 	.align 4
-	PostfixQueue: .space 200	# TEMPORARY Array to store the postfix expression
 	OperandStack: .space 200	# Array to store the OperandStack elements
-	OperandStack_TopIndex: .word 0	# Initialize TopIndex to 0
 	result: .asciiz "The result is "
-
-.include "utils.asm"
-.include "queue.asm"
