@@ -80,7 +80,10 @@
 		syscall
 		
 		addi $s0, $s0, -4
-		l.s $f12, OperandStack($s0)	# save OperandStack top element to $f12, then pop it
+		lw $t5, OperandStack($s0) #Save the OperandStack top element to $t5 and pop it
+		mtc1 $t5, $f12 #move $t5 to $f12
+		cvt.s.w $f12, $f12 #Convert the value of $f12 (still a word value) to a floating-point value
+		#l.s $f12, OperandStack($s0)	# save OperandStack top element to $f12, then pop it
 		#l.s $f13, 0.0        		# set $f13 to 0.0 (least significant half)
 		# Print result float (with $v0 = 2 and $f12, $f3 loaded above)
 		li $v0, 2
