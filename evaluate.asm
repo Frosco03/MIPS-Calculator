@@ -16,7 +16,7 @@
 	
 	evaluationLoop:
 	lw $t3, 0($t2)		# save the current element of output queue
-	beq $t3, $zero, printResult	# if you are at the end of the output queue, go to end 
+	beq $t3, $zero, printResult # if you are at the end of the output queue, go to end 
 	addi $t2, $t2, 4	# increment so in next iteration, we read next element of array
 		
 		# If value is not a digit (value < 0)
@@ -66,7 +66,7 @@
 				
 			# PUSH $f0 TO OperandStack
 			pushResultToOperandStack:
-				l.s $f0, OperandStack($s0)	# store $f0 to OperatorStack
+				swc1 $f0, OperandStack($s0)	# store $f0 to OperatorStack
 				addi $s0, $s0, 4		# increment OperatorStack top index
 				j evaluationLoop		# move to next element of the queue
 
