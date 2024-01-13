@@ -20,6 +20,7 @@
 	
 	jal Exit
 
+
 .data
 	prompt: .asciiz "Input your equation here: "
 	buffer: .space 100
@@ -27,5 +28,5 @@
 
 
 .include "tokenize.asm"
-.include "conversion.asm"
+.include "conversion-revised.asm"
 .include "utils.asm"
