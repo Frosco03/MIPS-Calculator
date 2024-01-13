@@ -43,10 +43,10 @@
 			l.s $f1, OperandStack($s0)	# save OperandStack top element to $f1, then pop it
 		
 			# perform operation on $f1 and $f2 based on operator
-			beq $t1, -57, doAdd	# if $t1 == + 	== (add_op ascii = 43) - 100 == -57
-			beq $t1, -55, doSub	# if $t1 == -	== (sub_op ascii = 45) - 100 == -55
-			beq $t1, -58, doMul	# if $t1 == * 	== (mul_op ascii = 42) - 100 == -58
-			beq $t1, -53, doDiv	# if $t1 == /	== (div_op ascii = 47) - 100 == -53
+			beq $t3, -57, doAdd	# if $t1 == + 	== (add_op ascii = 43) - 100 == -57
+			beq $t3, -55, doSub	# if $t1 == -	== (sub_op ascii = 45) - 100 == -55
+			beq $t3, -58, doMul	# if $t1 == * 	== (mul_op ascii = 42) - 100 == -58
+			beq $t3, -53, doDiv	# if $t1 == /	== (div_op ascii = 47) - 100 == -53
 			
 			doAdd:
 				add.s $f0, $f1, $f2
