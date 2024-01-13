@@ -20,7 +20,7 @@
 		dig:
 			#### PUSH IT TO OperandStack; ADD CODE HERE
 			
-			b end
+			j end
 			
 		# Else if value is not a digit, pop OperandStack twice and 
 		#	use the operator to perform operation on the two popped elements
@@ -46,19 +46,19 @@
 			
 			doAdd:
 				add.s $f0, $f1, $f2
-				b pushResultToOperandStack
+				j pushResultToOperandStack
 				
 			doSub:
 				sub.s $f0, $f1, $f2
-				b pushResultToOperandStack
+				j pushResultToOperandStack
 			
 			doMul:
 				mul.s $f0, $f1, $f2
-				b pushResultToOperandStack
+				j pushResultToOperandStack
 			
 			doDiv:
 				div.s $f0, $f1, $f2
-				b pushResultToOperandStack
+				j pushResultToOperandStack
 				
 			# PUSH $f0 TO OperandStack
 			pushResultToOperandStack:
