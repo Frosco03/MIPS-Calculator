@@ -10,9 +10,7 @@
 	PostEvaluation:
 	# Get the output queue array address
 	move $t2, $a0
-	li $s0, 0 		# Initialize OperandStack top index to 0
-	li $t0, 0		
-	la $t1, OperandStack	
+	li $s0, 0 		# Initialize OperandStack top index to 0	
 	
 	evaluationLoop:
 	lw $t3, 0($t2)		# save the current element of output queue
@@ -36,12 +34,14 @@
 			# num1 = $f1, num2 = $f2
 			# pop off the top element of the OperandStack, and load value to a float register
 			addi $s0, $s0, -4
-			l.s $f2, OperandStack($s0)	# save OperandStack top element to $f2, then pop it
+			lwc1 $f2, OperandStack($s0)	# save OperandStack top element to $f2, then pop it
+			lw $s2, OperandStack($s0)	# save OperandStack top element to $f2, then pop it
 			
 			# pop off the top element of the OperandStack, and load value to a float register
 			addi $s0, $s0, -4
-			l.s $f1, OperandStack($s0)	# save OperandStack top element to $f1, then pop it
-		
+			lwc1 $f1, OperandStack($s0)	# save OperandStack top element to $f1, then pop it
+			lw $s1, OperandStack($s0)
+			
 			# perform operation on $f1 and $f2 based on operator
 			beq $t1, -57, doAdd	# if $t1 == + 	== (add_op ascii = 43) - 100 == -57
 			beq $t1, -55, doSub	# if $t1 == -	== (sub_op ascii = 45) - 100 == -55
@@ -57,11 +57,17 @@
 				j pushResultToOperandStack
 			
 			doMul:
-				mul.s $f0, $f1, $f2
+				mul $s3, $s1, $s2
+				mfhi $s4
+				mtc1 $s3, $f0
+				mtc1 $s4, $f3
+				cvt.s.w $f3, $f3
+				add.s $f0, $f0, $f3
 				j pushResultToOperandStack
 			
 			doDiv:
 				div.s $f0, $f1, $f2
+				c.eq.s $f0, $f0		# this line activates printNowDontCovert at label printResult
 				j pushResultToOperandStack
 				
 			# PUSH $f0 TO OperandStack
@@ -69,7 +75,6 @@
 				l.s $f0, OperandStack($s0)	# store $f0 to OperatorStack
 				addi $s0, $s0, 4		# increment OperatorStack top index
 				j evaluationLoop		# move to next element of the queue
-
 		
 	# If the end of the PostfixQueue is reached, then the result is top OperatorStack top element;
 	# 	pop off the top element of the OperandStack, and load value to a float register
@@ -83,7 +88,17 @@
 		la $a0, result
 		syscall
 		
+<<<<<<< Updated upstream
+=======
+		addi $s0, $s0, -4
+		lw $t5, OperandStack($s0) 	#Save the OperandStack top element to $t5 and pop it
+		mtc1 $t5, $f12 			# move $t5 to $f12
+		bc1t printNowDontCovert	### If division was performed, jump to printNowDontCovert. Else, convert.
+		cvt.s.w $f12, $f12 		# Convert the value of $f12 (still a word value) to a floating-point value
+		
+>>>>>>> Stashed changes
 		# Print result float (with $v0 = 2 and $f12, $f3 loaded above)
+		printNowDontCovert:
 		li $v0, 2
 		syscall
 		
