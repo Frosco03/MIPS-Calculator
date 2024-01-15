@@ -36,12 +36,18 @@
 			# num1 = $f1, num2 = $f2
 			# pop off the top element of the OperandStack, and load value to a float register
 			addi $s0, $s0, -4
-			l.s $f2, OperandStack($s0)	# save OperandStack top element to $f2, then pop it
+			#l.s $f2, OperandStack($s0)	# save OperandStack top element to $f2, then pop it
+			lw $t5, OperandStack($s0) #Save the OperandStack top element to $t5 and pop it
+			mtc1 $t5, $f2 #move $t5 to $f12
+			cvt.s.w $f2, $f2 #Convert the value of $f12 (still a word value) to a floating-point value
 			
 			# pop off the top element of the OperandStack, and load value to a float register
 			addi $s0, $s0, -4
-			l.s $f1, OperandStack($s0)	# save OperandStack top element to $f1, then pop it
-		
+			#l.s $f1, OperandStack($s0)	# save OperandStack top element to $f1, then pop it
+			lw $t5, OperandStack($s0) #Save the OperandStack top element to $t5 and pop it
+			mtc1 $t5, $f1 #move $t5 to $f12
+			cvt.s.w $f1, $f1 #Convert the value of $f12 (still a word value) to a floating-point value
+			
 			# perform operation on $f1 and $f2 based on operator
 			beq $t3, -57, doAdd	# if $t1 == + 	== (add_op ascii = 43) - 100 == -57
 			beq $t3, -55, doSub	# if $t1 == -	== (sub_op ascii = 45) - 100 == -55
@@ -66,6 +72,7 @@
 				
 			# PUSH $f0 TO OperandStack
 			pushResultToOperandStack:
+				cvt.w.s $f0, $f0
 				swc1 $f0, OperandStack($s0)	# store $f0 to OperatorStack
 				addi $s0, $s0, 4		# increment OperatorStack top index
 				j evaluationLoop		# move to next element of the queue
