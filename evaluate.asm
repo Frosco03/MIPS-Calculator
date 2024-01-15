@@ -22,14 +22,14 @@
 		
 		# Else if value is a digit, then push $t3 to the OperandStack
 		digit:
-		sw $t3, OperandStack($s0)	# store $t3 to OperatorStack
+		sw $t3, OperandStack($s0)	# store $t3 to OperandStack
 		addi $s0, $s0, 4		# increment OperatorStack top index
 		j evaluationLoop
 			
 		notdigit:
 			# pop OperandStack twice, then use the operator to perform operation on them
-		
 			# num1 = $f1, num2 = $f2
+			
 			# pop off the top element of the OperandStack, and load value to a float register
 			addi $s0, $s0, -4
 			lwc1 $f2, OperandStack($s0)	# save OperandStack top element to $f2, then pop it
@@ -76,7 +76,7 @@
 				addi $s0, $s0, 4		# increment OperatorStack top index
 				j evaluationLoop		# move to next element of the queue
 		
-	# If the end of the PostfixQueue is reached, then the result is top OperatorStack top element;
+	# If the end of the PostfixQueue is reached, then the result is top OperabdStack top element;
 	# 	pop off the top element of the OperandStack, and load value to a float register
 	printResult:
 		# Print result text (with $v0 = 4)
