@@ -148,11 +148,8 @@
 		j end
 	
 	returnToMainProgram:
-		la $a0, queueArray
-		
 		####### DEBUGGING START: TO SEE QUEUE CONTENT
 		la $t1, queueArray
-		
 		output_loop:
 			beqz $t0, exit
 			
@@ -167,10 +164,10 @@
 			
 			addi $t0, $t0, -1
 			b output_loop
-		
 		####### DEBUGGING END
 		
-		exit:
+	exit:
+		la $a0, queueArray
 		jr $ra
 .data
 	.align 4
