@@ -148,25 +148,6 @@
 		j end
 	
 	returnToMainProgram:
-		####### DEBUGGING START: TO SEE QUEUE CONTENT
-		la $t1, queueArray
-		output_loop:
-			beqz $t0, exit
-			
-			lw $a0, 0($t1)
-			addi $t1, $t1, 4
-			li $v0, 1
-			syscall
-			
-			li $v0, 4
-			la $a0, debugging_space
-			syscall
-			
-			addi $t0, $t0, -1
-			b output_loop
-		####### DEBUGGING END
-		
-	exit:
 		la $a0, queueArray
 		jr $ra
 .data

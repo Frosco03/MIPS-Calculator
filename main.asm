@@ -17,17 +17,12 @@
 	
 	jal PostEvaluation
 	
-	la $a0, yay
-	jal PrintString
-	
 	jal Exit
 
 
 .data
 	prompt: .asciiz "Input your equation here: "
 	buffer: .space 100
-	yay: .asciiz "yay!"
-
 
 .include "tokenize.asm"
 .include "conversion-revised.asm"
